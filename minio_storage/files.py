@@ -15,7 +15,7 @@ logger = getLogger("minio_storage")
 class ReadOnlyMixin:
     """File class mixin which disallows .write() calls"""
 
-    def writable(self) -> bool:
+    def writable(self):
         return False
 
     def write(*args, **kwargs):
@@ -25,20 +25,20 @@ class ReadOnlyMixin:
 class NonSeekableMixin:
     """File class mixin which disallows .seek() calls"""
 
-    def seekable(self) -> bool:
+    def seekable(self):
         return False
 
-    def seek(self, *args, **kwargs) -> bool:
+    def seek(self, *args, **kwargs):
         # TODO: maybe exception is better
         # raise NotImplementedError('seek is not supported')
         return False
 
 
 class MinioStorageFile(File):
-    def __init__(self, name: str, mode: str, storage: "Storage", **kwargs):
-        self._storage: "Storage" = storage
-        self.name: str = name
-        self._mode: str = mode
+    def __init__(self, name, mode, storage, **kwargs):
+        self._storage = storage
+        self.name = name
+        self._mode = mode
         self._file = None
 
 
@@ -51,11 +51,11 @@ Note: This file class is not tested yet"""
 
     def __init__(
         self,
-        name: str,
-        mode: str,
-        storage: "Storage",
-        max_memory_size: T.Optional[int] = None,
-        **kwargs,
+        name,
+        mode,
+        storage,
+        max_memory_size = None,
+        **kwargs
     ):
         if mode.find("w") > -1:
             raise NotImplementedError(
@@ -63,7 +63,7 @@ Note: This file class is not tested yet"""
             )
         if max_memory_size is not None:
             self.max_memory_size = max_memory_size
-        super().__init__(name, mode, storage)
+        super(ReadOnlyMinioObjectFile, self).__init__(name, mode, storage)
 
     def _get_file(self):
         if self._file is None:
@@ -75,7 +75,7 @@ Note: This file class is not tested yet"""
                 return self._file
             except merr.ResponseError as error:
                 logger.warn(error)
-                raise OSError(f"File {self.name} does not exist")
+                raise OSError("File {} does not exist".format(self.name))
             finally:
                 try:
                     obj.release_conn()
@@ -99,15 +99,15 @@ class ReadOnlySpooledTemporaryFile(MinioStorageFile, ReadOnlyMixin):
     """A django File class which buffers the minio object into a local
 SpooledTemporaryFile. """
 
-    max_memory_size: int = 1024 * 1024 * 10
+    max_memory_size = 1024 * 1024 * 10
 
     def __init__(
         self,
-        name: str,
-        mode: str,
-        storage: "Storage",
-        max_memory_size: T.Optional[int] = None,
-        **kwargs,
+        name,
+        mode,
+        storage,
+        max_memory_size = None,
+        **kwargs
     ):
         if mode.find("w") > -1:
             raise NotImplementedError(
@@ -115,7 +115,7 @@ SpooledTemporaryFile. """
             )
         if max_memory_size is not None:
             self.max_memory_size = max_memory_size
-        super().__init__(name, mode, storage)
+        super(ReadOnlySpooledTemporaryFile, self).__init__(name, mode, storage)
 
     def _get_file(self):
         if self._file is None:
@@ -131,7 +131,7 @@ SpooledTemporaryFile. """
                 self._file.seek(0)
                 return self._file
             except merr.ResponseError as error:
-                raise minio_error(f"File {self.name} does not exist", error)
+                raise minio_error("File {} does not exist".format(self.name), error)
             finally:
                 try:
                     obj.release_conn()

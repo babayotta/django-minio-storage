@@ -1,11 +1,10 @@
 import datetime
 import mimetypes
 import posixpath
-import typing as T
 import urllib
 from logging import getLogger
 from time import mktime
-from urllib.parse import urlparse
+from urlparse import urlparse
 
 import minio
 import minio.error as merr
@@ -36,20 +35,20 @@ class MinioStorage(Storage):
 
     def __init__(
         self,
-        minio_client: minio.Minio,
-        bucket_name: str,
-        *,
-        base_url: T.Optional[str] = None,
+        minio_client,
+        bucket_name,
+        base_url=None,
         file_class=None,
-        auto_create_bucket: bool = False,
-        presign_urls: bool = False,
-        auto_create_policy: bool = False,
-        policy_type: T.Optional[Policy] = None,
-        object_metadata: T.Optional[T.Dict[str, str]] = None,
-        backup_format: T.Optional[str] = None,
-        backup_bucket: T.Optional[str] = None,
-        assume_bucket_exists: bool = False,
-        **kwargs,
+        auto_create_bucket=False,
+        presign_urls=False,
+        auto_create_policy=False,
+        policy_type=None,
+        object_metadata=None,
+        backup_format=None,
+        backup_bucket=None,
+        assume_bucket_exists=False,
+        *args,
+        **kwargs
     ):
         self.client = minio_client
         self.bucket_name = bucket_name
@@ -74,7 +73,7 @@ class MinioStorage(Storage):
 
         self._init_check()
 
-        super().__init__()
+        super(MinioStorage, self).__init__()
 
     def _init_check(self):
         if not self.assume_bucket_exists:
@@ -91,7 +90,7 @@ class MinioStorage(Storage):
                     )
 
             elif not self.client.bucket_exists(self.bucket_name):
-                raise OSError(f"The bucket {self.bucket_name} does not exist")
+                raise OSError("The bucket {} does not exist".format(self.bucket_name))
 
     def _sanitize_path(self, name):
         v = posixpath.normpath(name).replace("\\", "/")
@@ -137,9 +136,9 @@ class MinioStorage(Storage):
             )
             return sane_name
         except merr.ResponseError as error:
-            raise minio_error(f"File {name} could not be saved", error)
+            raise minio_error("File {} could not be saved".format(name), error)
 
-    def delete(self, name: str) -> None:
+    def delete(self, name):
         if self.backup_format and self.backup_bucket:
             try:
                 obj = self.client.get_object(self.bucket_name, name)
@@ -152,7 +151,7 @@ class MinioStorage(Storage):
             try:
                 content_length = int(obj.getheader("Content-Length"))
             except ValueError as error:
-                raise minio_error(f"Could not backup removed file {name}", error)
+                raise minio_error("Could not backup removed file {}".format(name), error)
 
             # Creates the backup filename
             target_name = "{}{}".format(
@@ -172,9 +171,9 @@ class MinioStorage(Storage):
         try:
             self.client.remove_object(self.bucket_name, name)
         except merr.ResponseError as error:
-            raise minio_error(f"Could not remove file {name}", error)
+            raise minio_error("Could not remove file {}".format(name), error)
 
-    def exists(self, name: str) -> bool:
+    def exists(self, name):
         try:
             self.client.stat_object(self.bucket_name, self._sanitize_path(name))
             return True
@@ -183,7 +182,7 @@ class MinioStorage(Storage):
             if error.code == "NoSuchKey":
                 return False
             else:
-                raise minio_error(f"Could not stat file {name}", error)
+                raise minio_error("Could not stat file".format(name), error)
         except merr.NoSuchKey:
             return False
         except merr.NoSuchBucket:
@@ -191,7 +190,7 @@ class MinioStorage(Storage):
         except Exception as error:
             logger.error(error)
 
-    def listdir(self, path: str) -> T.Tuple[T.List, T.List]:
+    def listdir(self, path):
         #  [None, "", "."] is supported to mean the configured root among various
         #  implementations of Storage implementations so we copy that behaviour even if
         #  maybe None should raise an exception instead.
@@ -206,8 +205,8 @@ class MinioStorage(Storage):
             if not path.endswith("/"):
                 path += "/"
 
-        dirs: T.List[str] = []
-        files: T.List[str] = []
+        dirs = []
+        files = []
         try:
             objects = self.client.list_objects_v2(self.bucket_name, prefix=path)
             for o in objects:
@@ -220,18 +219,18 @@ class MinioStorage(Storage):
         except merr.NoSuchBucket:
             raise
         except merr.ResponseError as error:
-            raise minio_error(f"Could not list directory {path}", error)
+            raise minio_error("Could not list directory {}".format(path), error)
 
-    def size(self, name: str) -> int:
+    def size(self, name):
         try:
             info = self.client.stat_object(self.bucket_name, name)
             return info.size
         except merr.ResponseError as error:
-            raise minio_error(f"Could not access file size for {name}", error)
+            raise minio_error("Could not access file size for {}".format(name), error)
 
     def url(
-        self, name: str, *args, max_age: T.Optional[datetime.timedelta] = None
-    ) -> str:
+        self, name, max_age=None, *args
+    ):
         kwargs = {}
         if max_age is not None:
             kwargs["expires"] = max_age
@@ -279,25 +278,25 @@ class MinioStorage(Storage):
                 )
         return url
 
-    def accessed_time(self, name: str) -> datetime.datetime:
+    def accessed_time(self, name):
         """
         Not available via the S3 API
         """
         return self.modified_time(name)
 
-    def created_time(self, name: str) -> datetime.datetime:
+    def created_time(self, name):
         """
         Not available via the S3 API
         """
         return self.modified_time(name)
 
-    def modified_time(self, name: str) -> datetime.datetime:
+    def modified_time(self, name):
         try:
             info = self.client.stat_object(self.bucket_name, name)
             return datetime.datetime.fromtimestamp(mktime(info.last_modified))
         except merr.ResponseError as error:
             raise minio_error(
-                f"Could not access modification time for file {name}", error
+                "Could not access modification time for file {}".format(name), error
             )
 
 
@@ -313,7 +312,7 @@ def get_setting(name, default=_NoValue):
         return result
 
 
-def create_minio_client_from_settings(*, minio_kwargs=dict()):
+def create_minio_client_from_settings(minio_kwargs=dict(), *args):
     endpoint = get_setting("MINIO_STORAGE_ENDPOINT")
     access_key = get_setting("MINIO_STORAGE_ACCESS_KEY")
     secret_key = get_setting("MINIO_STORAGE_SECRET_KEY")
@@ -323,7 +322,7 @@ def create_minio_client_from_settings(*, minio_kwargs=dict()):
         access_key=access_key,
         secret_key=secret_key,
         secure=secure,
-        **minio_kwargs,
+        **minio_kwargs
     )
     return client
 
@@ -357,7 +356,7 @@ class MinioMediaStorage(MinioStorage):
         object_metadata = get_setting("MINIO_STORAGE_MEDIA_OBJECT_METADATA", None)
         # print("SETTING", object_metadata)
 
-        super().__init__(
+        super(MinioMediaStorage, self).__init__(
             client,
             bucket_name,
             auto_create_bucket=auto_create_bucket,
@@ -398,7 +397,7 @@ class MinioStaticStorage(MinioStorage):
 
         object_metadata = get_setting("MINIO_STORAGE_STATIC_OBJECT_METADATA", None)
 
-        super().__init__(
+        super(MinioStaticStorage, self).__init__(
             client,
             bucket_name,
             auto_create_bucket=auto_create_bucket,
@@ -409,3 +408,4 @@ class MinioStaticStorage(MinioStorage):
             assume_bucket_exists=assume_bucket_exists,
             object_metadata=object_metadata,
         )
+

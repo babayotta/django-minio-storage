@@ -57,7 +57,7 @@ class SecretStorage(MinioStorage):
         # this bucket so that we can keep files more private here than how media files
         # usually are public readable.
         #
-        super().__init__(
+        super(SecretStorage, self).__init__(
             client,
             bucket_name,
             auto_create_bucket=True,

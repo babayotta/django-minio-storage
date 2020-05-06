@@ -1,7 +1,8 @@
+from __future__ import print_function
 import json
 import sys
 from string import Template
-from unittest.mock import patch
+from mock import patch
 
 import minio.error
 from django.core.management.base import BaseCommand, CommandError
@@ -80,7 +81,7 @@ class Command(BaseCommand):
             help="set bucket policy",
         )
 
-        super().add_arguments(parser)
+        super(Command, self).add_arguments(parser)
 
     def handle(self, *args, **options):
         storage = self.storage(options)
@@ -122,7 +123,7 @@ class Command(BaseCommand):
             return self.policy_get(storage, bucket_name)
         self.print_help("minio", "")
         if command != "":
-            raise CommandError(f"don't know how to handle command: {command}")
+            raise CommandError("don't know how to handle command: {}".format(command))
         raise CommandError("command name required")
 
     def storage(self, options):
@@ -134,9 +135,9 @@ class Command(BaseCommand):
         try:
             storage_class = import_string(class_name)
         except ImportError:
-            raise CommandError(f"could not find storage class: {class_name}")
+            raise CommandError("could not find storage class: {}".format(class_name))
         if not issubclass(storage_class, MinioStorage):
-            raise CommandError(f"{class_name} is not an sub class of MinioStorage.")
+            raise CommandError("{} is not an sub class of MinioStorage.".format(class_name))
 
         # TODO: maybe another way
         with patch.object(storage_class, "_init_check", return_value=None):
@@ -146,24 +147,24 @@ class Command(BaseCommand):
     def bucket_exists(self, storage, bucket_name):
         exists = storage.client.bucket_exists(bucket_name)
         if not exists:
-            raise CommandError(f"bucket {bucket_name} does not exist")
+            raise CommandError("bucket {} does not exist".format(bucket_name))
 
     def list_buckets(self, storage):
         objs = storage.client.list_buckets()
         for o in objs:
-            self.stdout.write(f"{o.name}")
+            self.stdout.write("{}".format(o.name))
 
     def bucket_list(
         self,
         storage,
-        bucket_name: str,
-        *,
-        prefix: str,
-        list_dirs: bool,
-        list_files: bool,
-        recursive: bool,
-        format: str = None,
-        summary: bool = True,
+        bucket_name,
+        prefix,
+        list_dirs,
+        list_files,
+        recursive,
+        format = None,
+        summary = True,
+        *args
     ):
         try:
             objs = storage.client.list_objects_v2(
@@ -198,25 +199,25 @@ class Command(BaseCommand):
                         self.stdout.write(fmt(o))
 
             if summary:
-                print(f"{n_files} files and {n_dirs} directories", file=sys.stderr)
+                print("{} files and {} directories".format(n_files, n_dirs), file=sys.stderr)
         except minio.error.NoSuchBucket:
-            raise CommandError(f"bucket {bucket_name} does not exist")
+            raise CommandError("bucket {} does not exist".format(bucket_name))
 
     def bucket_create(self, storage, bucket_name):
         try:
             storage.client.make_bucket(bucket_name)
-            print(f"created bucket: {bucket_name}", file=sys.stderr)
+            print("created bucket: {}".format(bucket_name), file=sys.stderr)
         except minio.error.BucketAlreadyOwnedByYou:
-            raise CommandError(f"you have already created {bucket_name}")
+            raise CommandError("you have already created {}".format(bucket_name))
         return
 
     def bucket_delete(self, storage, bucket_name):
         try:
             storage.client.remove_bucket(bucket_name)
         except minio.error.NoSuchBucket:
-            raise CommandError(f"bucket {bucket_name} does not exist")
+            raise CommandError("bucket {} does not exist".format(bucket_name))
         except minio.error.BucketNotEmpty:
-            raise CommandError(f"bucket {bucket_name} is not empty")
+            raise CommandError("bucket {} is not empty".format(bucket_name))
 
     def policy_get(self, storage, bucket_name):
         try:
@@ -225,11 +226,11 @@ class Command(BaseCommand):
             policy = json.dumps(policy, ensure_ascii=False, indent=2)
             return policy
         except minio.error.NoSuchBucket:
-            raise CommandError(f"bucket {bucket_name} does not exist")
+            raise CommandError("bucket {} does not exist".format(bucket_name))
         except minio.error.NoSuchBucketPolicy:
-            raise CommandError(f"bucket {bucket_name} has no policy")
+            raise CommandError("bucket {} has no policy".format(bucket_name))
 
-    def policy_set(self, storage, bucket_name, policy: Policy):
+    def policy_set(self, storage, bucket_name, policy):
         try:
             policy = Policy(policy)
             storage.client.set_bucket_policy(bucket_name, policy.bucket(bucket_name))

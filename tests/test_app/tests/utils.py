@@ -12,7 +12,7 @@ warnings.filterwarnings(
 )
 
 
-warnings.simplefilter("ignore", ResourceWarning)
+# warnings.simplefilter("ignore", ResourceWarning)
 
 
 def bucket_name(name):

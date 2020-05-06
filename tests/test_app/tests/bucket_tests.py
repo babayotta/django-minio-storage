@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import json
 
 import requests
@@ -78,7 +79,7 @@ class BucketPolicyTests(BaseTestMixin, TestCase):
 
         if comparable(first) != comparable(second):
             raise ValueError(
-                f"not equal:\n\n ------{pretty(first)}\n\n ------{pretty(second)}"
+                "not equal:\n\n ------{}\n\n ------{}".format(pretty(first), pretty(second))
             )
 
     @override_settings(
@@ -106,7 +107,7 @@ class BucketPolicyTests(BaseTestMixin, TestCase):
         url = ms.url(fn)
         self.assertEqual(requests.get(url).status_code, 200)
         self.assertEqual(
-            requests.get(f"{ms.client._endpoint_url}/{ms.bucket_name}").status_code, 403
+            requests.get("{}/{}".format(ms.client._endpoint_url, ms.bucket_name)).status_code, 403
         )
 
     @override_settings(
@@ -124,7 +125,7 @@ class BucketPolicyTests(BaseTestMixin, TestCase):
         self.assertEqual(ms.open(fn).read(), b"test")
         self.assertEqual(requests.get(ms.url(fn)).status_code, 200)
         self.assertEqual(
-            requests.get(f"{ms.client._endpoint_url}/{ms.bucket_name}").status_code, 403
+            requests.get("{}/{}".format(ms.client._endpoint_url, ms.bucket_name)).status_code, 403
         )
 
     @override_settings(
@@ -142,7 +143,7 @@ class BucketPolicyTests(BaseTestMixin, TestCase):
         self.assertEqual(ms.open(fn).read(), b"test")
         self.assertEqual(requests.get(ms.url(fn)).status_code, 403)
         self.assertEqual(
-            requests.get(f"{ms.client._endpoint_url}/{ms.bucket_name}").status_code, 403
+            requests.get("{}/{}".format(ms.client._endpoint_url, ms.bucket_name)).status_code, 403
         )
 
     @override_settings(

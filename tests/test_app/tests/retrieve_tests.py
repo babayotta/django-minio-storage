@@ -168,7 +168,7 @@ class URLTests(TestCase):
         assert endpoint != ""
         media_storage = MinioMediaStorage()
         url = media_storage.url("22")
-        self.assertEqual(url, f"http://{endpoint}/foo/22")
+        self.assertEqual(url, "http://{}/foo/22".format(endpoint))
 
     @override_settings(
         MINIO_STORAGE_MEDIA_USE_PRESIGNED=False,
@@ -181,7 +181,7 @@ class URLTests(TestCase):
         media_storage = MinioMediaStorage()
         name = "23/23/aaa/bbb/22"
         url = media_storage.url(name)
-        self.assertEqual(url, f"http://{endpoint}/foo/23/23/aaa/bbb/22")
+        self.assertEqual(url, "http://{}/foo/23/23/aaa/bbb/22".format(endpoint))
 
     @override_settings(
         MINIO_STORAGE_MEDIA_USE_PRESIGNED=False,
@@ -252,7 +252,7 @@ class URLTests(TestCase):
     def test_quote_base_url(self):
         media_storage = MinioMediaStorage()
         url = media_storage.url(self.NAME)
-        self.assertEqual(url, f"{self.BASE}/{self.ENCODED}")
+        self.assertEqual(url, "{}/{}".format(self.BASE, self.ENCODED))
 
     @override_settings(
         MINIO_STORAGE_MEDIA_URL=BASE,
@@ -262,6 +262,6 @@ class URLTests(TestCase):
     def test_quote_base_url_presigned(self):
         media_storage = MinioMediaStorage()
         url = media_storage.url(self.NAME)
-        prefix = f"{self.BASE}/{self.ENCODED}"
+        prefix = "{}/{}".format(self.BASE, self.ENCODED)
         self.assertTrue(url.startswith(prefix))
         self.assertTrue(len(url) > len(prefix))
