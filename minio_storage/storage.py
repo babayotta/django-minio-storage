@@ -267,7 +267,7 @@ class MinioStorage(Storage):
                     return path
 
                 url = "{}/{}".format(
-                    strip_end(self.base_url), urllib.parse.quote(strip_beg(name))
+                    strip_end(self.base_url), urllib.pathname2url(strip_beg(name))
                 )
             else:
                 url = get_target_url(
