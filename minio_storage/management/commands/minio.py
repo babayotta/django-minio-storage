@@ -1,10 +1,11 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import json
 import sys
 from string import Template
 from mock import patch
 
-import minio.error
+import minio
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.module_loading import import_string
 from minio_storage.policy import Policy
@@ -162,8 +163,8 @@ class Command(BaseCommand):
         list_dirs,
         list_files,
         recursive,
-        format = None,
-        summary = True,
+        format=None,
+        summary=True,
         *args
     ):
         try:
