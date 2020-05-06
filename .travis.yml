@@ -1,10 +1,10 @@
 language: python
 python:
-- '2.7'
+  - "2.7"
 install:
-- pip install tox tox-travis
+  - pip install tox tox-travis
 script:
-- tox
+  - tox
 sudo: required
 services:
 - docker
