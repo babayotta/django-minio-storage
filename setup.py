@@ -15,7 +15,7 @@ setup(
         "minio_storage/management/commands/",
     ],
     setup_requires=["setuptools_scm"],
-    install_requires=["django>=1.11", "minio>=4.0.21"],
+    install_requires=["django>=1.11,<2", "minio>=4.0.21"],
     extras_require={"test": ["coverage", "requests"]},
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -24,7 +24,7 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 2.7",
         "Framework :: Django",
     ],
 )

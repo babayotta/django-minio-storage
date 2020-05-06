@@ -12,3 +12,4 @@ env/
 .tox/
 .eggs/
 site/
+venv*/
