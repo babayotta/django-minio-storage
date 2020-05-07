@@ -154,6 +154,8 @@ class Command(BaseCommand):
         objs = storage.client.list_buckets()
         for o in objs:
             name = unicode(o.name, 'utf-8')
+            from django.utils.six import PY3
+            PY3 = True
             self.stdout.write(u"unicode_bitch")
             # self.stdout.write("{}".format(o.name))
 
