@@ -152,9 +152,9 @@ class Command(BaseCommand):
 
     def list_buckets(self, storage):
         objs = storage.client.list_buckets()
-        from django.utils.encoding import force_unicode
+        from django.utils.encoding import smart_unicode
         for o in objs:
-            self.stdout.write(force_unicode("{}".format(o.name)))
+            self.stdout.write(smart_unicode(u"{}".format(o.name)))
 
     def bucket_list(
         self,
