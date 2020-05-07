@@ -142,7 +142,7 @@ class CommandsTests(BaseTestMixin, TestCase):
 
         for test in test_data:
             (args, expected) = test
-            ls_test(*args, expected=expected)
+            ls_test(expected=expected, *args)
 
     def test_check(self):
         out = StringIO()
