@@ -1,9 +1,8 @@
-from __future__ import absolute_import
 import io
 import os
 import shutil
-import tempfile
 
+from backports import tempfile
 from django.core.files.base import ContentFile
 from django.test import TestCase, override_settings
 from django.utils.deconstruct import deconstructible
