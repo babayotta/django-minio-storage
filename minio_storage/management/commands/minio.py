@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import unicode_literals
 import json
 import sys
 from string import Template
@@ -153,7 +154,6 @@ class Command(BaseCommand):
     def list_buckets(self, storage):
         objs = storage.client.list_buckets()
         for o in objs:
-            print(o)
             self.stdout.write("{}".format(o.name))
 
     def bucket_list(
