@@ -81,7 +81,7 @@ class CommandsTests(BaseTestMixin, TestCase):
 
         def ls_test(expected, *args):
             out = StringIO()
-            call_command("minio", "ls", *args, stdout=out)
+            call_command("minio", "ls", stdout=out, *args)
             out.seek(0)
             lines = out.read().splitlines()
             self.assertEqual(sorted(lines), sorted(expected))
