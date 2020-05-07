@@ -41,7 +41,7 @@ class UploadTests(BaseTestMixin, TestCase):
 
     def test_files_are_uploaded_from_the_beginning(self):
         local_filename = os.path.join(settings.BASE_DIR, "watermelon-cat.jpg")
-        f = open(local_filename, "br")
+        f = open(local_filename, "r")
         f.seek(20000)
         saved_file = self.media_storage.save("watermelon-cat.jpg", f)
         file_size = os.stat(local_filename).st_size
