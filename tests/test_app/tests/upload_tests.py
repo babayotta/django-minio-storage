@@ -32,7 +32,7 @@ class UploadTests(BaseTestMixin, TestCase):
         self.assertNotEqual(jean, ivan)
 
     def test_files_from_filesystem_are_uploaded_properly(self):
-        f = File(open(os.path.join(settings.BASE_DIR, "watermelon-cat.jpg"), "br"))
+        f = File(open(os.path.join(settings.BASE_DIR, "watermelon-cat.jpg"), "r"))
         saved_file = self.media_storage.save("watermelon-cat.jpg", f)
         res = requests.get(self.media_storage.url(saved_file))
         self.assertAlmostEqual(
