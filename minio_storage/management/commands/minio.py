@@ -153,6 +153,7 @@ class Command(BaseCommand):
     def list_buckets(self, storage):
         objs = storage.client.list_buckets()
         for o in objs:
+            print(o)
             self.stdout.write("{}".format(o.name))
 
     def bucket_list(
