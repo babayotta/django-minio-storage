@@ -33,8 +33,7 @@ ALLOWED_HOSTS = []
 DEFAULT_STORAGE = "minio_storage.storage.MinioMediaStorage"
 STATICFILES_STORAGE = "minio_storage.storage.MinioStaticStorage"
 
-# MINIO_STORAGE_ENDPOINT = os.getenv("MINIO_STORAGE_ENDPOINT", "minio:9000")
-MINIO_STORAGE_ENDPOINT = "localhost:9000"
+MINIO_STORAGE_ENDPOINT = os.getenv("MINIO_STORAGE_ENDPOINT", "minio:9000")
 MINIO_STORAGE_ACCESS_KEY = "weak_access_key"
 MINIO_STORAGE_SECRET_KEY = "weak_secret_key"
 MINIO_STORAGE_MEDIA_BUCKET_NAME = bucket_name("tests-media")
