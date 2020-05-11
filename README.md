@@ -1,6 +1,4 @@
-[![PyPI version](https://badge.fury.io/py/django-minio-storage.svg)](https://badge.fury.io/py/django-minio-storage)
-[![Documentation Status](http://readthedocs.org/projects/django-minio-storage/badge/?version=latest)](http://django-minio-storage.readthedocs.io/en/latest/?badge=latest)
-[![Build Status](https://travis-ci.org/py-pa/django-minio-storage.svg?branch=master)](https://travis-ci.org/py-pa/django-minio-storage)
+[![Build Status](https://travis-ci.org/babayotta/django-minio-storage.svg?branch=master)](https://travis-ci.org/babayotta/django-minio-storage)
 
 # django-minio-storage
 
